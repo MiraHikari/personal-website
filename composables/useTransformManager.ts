@@ -36,18 +36,17 @@ export function useTransformManager(
     });
   }
 
-  function handleMovement(movement: Movement) {
+  function handleMovement(movement: Movement, immediate = false) {
     const { deltaX, deltaY } = movement;
 
-    // Batch DOM updates
-    requestAnimationFrame(() => {
+    const update = () => {
       elements.value.forEach((state, element) => {
         updateElementPosition(element, state.x + deltaX, state.y + deltaY);
       });
-
-      // Update scroll position
       updateScrollPosition(deltaX, deltaY);
-    });
+    };
+
+    immediate ? update() : requestAnimationFrame(update);
   }
 
   onUnmounted(() => {
@@ -66,6 +65,6 @@ export function useTransformManager(
       gsap.killTweensOf(element);
       elements.value.delete(element);
     },
-    updateTransform: handleMovement
+    updateTransform: (movement: Movement, immediate = false) => handleMovement(movement, immediate)
   };
 }

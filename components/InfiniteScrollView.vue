@@ -88,8 +88,8 @@ const {
   scrollX,
   scrollY,
   isMobile,
-  (deltaX: number, deltaY: number) =>
-    transformManager.updateTransform({ deltaX, deltaY })
+  (deltaX: number, deltaY: number, immediate = false) =>
+    transformManager.updateTransform({ deltaX, deltaY }, immediate)
 );
 
 // Lifecycle hooks

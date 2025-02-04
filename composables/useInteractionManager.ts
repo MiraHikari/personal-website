@@ -10,7 +10,7 @@ export function useInteractionManager(
   scrollX: Ref<number>,
   scrollY: Ref<number>,
   isMobile: Ref<boolean>,
-  updatePosition: (deltaX: number, deltaY: number) => void
+  updatePosition: (deltaX: number, deltaY: number, immediate?: boolean) => void
 ) {
   // Interaction State
   const isDragging = ref(false);
@@ -49,7 +49,7 @@ export function useInteractionManager(
         return;
     }
 
-    updatePosition(deltaX, deltaY);
+    updatePosition(deltaX, deltaY, true);
   }
 
   // Mouse Event Handlers
