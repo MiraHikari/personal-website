@@ -1,6 +1,6 @@
 <template>
   <InfiniteScrollView>
-    <Position x="50" y="50" debug>
+    <Position x="50" y="50">
       <HomeBlock message="首页组件 1" :items="[
         { id: 1, text: '首页项目 1' },
         { id: 2, text: '首页项目 2' }
@@ -34,12 +34,17 @@
         { id: 2, text: '首页项目 2' }
       ]" />
     </Position>
-    <Position x="900" y="50" debug>
+    <Position x="400" y="50">
       <HomeBlock message="首页组件 2" :items="[
         { id: 3, text: '首页项目 3' },
         { id: 4, text: '首页项目 4' }
       ]" />
     </Position>
+    <template #empty>
+      <div>
+        🤔你似乎来到了什么也没有的荒原，你可以无视本提示继续探索，或返回原点
+      </div>
+    </template>
   </InfiniteScrollView>
 </template>
 

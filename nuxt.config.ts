@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     'pinia-plugin-persistedstate/nuxt',
     '@vueuse/nuxt',
+    '@nuxt/icon'
   ],
   css: ['~/styles/global.css'],
   vite: {

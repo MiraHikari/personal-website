@@ -1,54 +1,86 @@
 <template>
-  <div class="bottom-nav">
-    <span>当前坐标: ({{ scrollX }}, {{ scrollY }})</span>
-    <input v-model.number="inputX" type="number" placeholder="X 坐标" />
-    <input v-model.number="inputY" type="number" placeholder="Y 坐标" />
-    <button @click="jumpToCoordinates">跳转</button>
+  <div class="dock glass bg-none backdrop-blur-3xl rounded-2xl container px-2 fixed bottom-4 mx-auto">
+    <span>{{Math.round(scrollX)}}, {{Math.round(scrollY)}}</span>
+
+    <!-- Jump Dialog Trigger -->
+    <button class="tooltip tooltip-top" data-tip="跳转到坐标" @click="showJumpDialog = true">
+      <Icon name="lucide:move" class="size-[1.2em]" />
+      <span class="dock-label">跳转</span>
+    </button>
+  </div>
+
+  <!-- Jump Dialog -->
+  <div id="jump_modal" :class="{ 'modal': true, 'modal-open': showJumpDialog }">
+    <div class="modal-box border">
+      <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+        <Icon name="lucide:move" class="size-5" />
+        跳转到坐标
+      </h3>
+      <div class="flex gap-4 mb-4">
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text">X 坐标</span>
+          </label>
+          <input v-model.number="inputX" type="number" class="input input-bordered w-full" />
+        </div>
+        <div class="form-control w-full">
+          <label class="label">
+            <span class="label-text">Y 坐标</span>
+          </label>
+          <input v-model.number="inputY" type="number" class="input input-bordered w-full" />
+        </div>
+      </div>
+      <div class="modal-action">
+        <form method="dialog">
+          <button class="btn btn-ghost mr-2" @click="showJumpDialog = false">
+            <Icon name="lucide:x" class="size-4" />
+            取消
+          </button>
+          <button class="btn btn-primary" @click="handleJumpFromDialog">
+            <Icon name="lucide:check" class="size-4" />
+            确定
+          </button>
+        </form>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop" @click="showJumpDialog = false">
+      <button>close</button>
+    </form>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { useInfiniteStore } from '~/stores/infiniteStore';
+
 import { storeToRefs } from 'pinia';
 
-// 直接通过 Pinia store 获取坐标
-const infiniteStore = useInfiniteStore();
-const { scrollX, scrollY } = storeToRefs(infiniteStore);
+const props = defineProps<{
+  scrollX: number;
+  scrollY: number;
+}>();
 
-// 内部使用本地响应式变量，初始化为 store 中的当前值
-const inputX = ref(scrollX.value);
-const inputY = ref(scrollY.value);
+// Jump Dialog State
+const showJumpDialog = ref(false);
+const inputX = ref(props.scrollX);
+const inputY = ref(props.scrollY);
 
-// 当 store 中的坐标发生变化时，同步更新输入框
-watch(scrollX, (newVal) => {
+// Watch props changes
+watch(() => props.scrollX, (newVal) => {
   inputX.value = newVal;
 });
-watch(scrollY, (newVal) => {
+watch(() => props.scrollY, (newVal) => {
   inputY.value = newVal;
 });
 
-// 定义跳转操作：通过发送 jump 事件，将用户输入的坐标传递出去
-const emit = defineEmits<{ (e: 'jump', coords: { x: number; y: number }): void }>();
-function jumpToCoordinates() {
-  emit('jump', { x: inputX.value, y: inputY.value });
+// Emits
+const emit = defineEmits<{
+  (e: 'navigate', action: 'home' | 'jump' | 'custom', coords?: { x: number; y: number }): void
+}>();
+
+// Methods
+function handleJumpFromDialog() {
+  emit('navigate', 'jump', { x: inputX.value, y: inputY.value });
+  console.log('jump', inputX.value, inputY.value);
+  showJumpDialog.value = false;
 }
 </script>
-
-<style scoped>
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 50px;
-  background-color: rgba(255, 255, 255, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  border-top: 1px solid #ccc;
-  padding: 0 20px;
-  z-index: 1001;
-}
-</style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="home-block">
+  <div  class="border p-10">
     <h3>{{ message }}</h3>
     <ul>
       <li v-for="item in items" :key="item.id">{{ item.text }}</li>
@@ -8,6 +8,7 @@
 </template>
 
 <script setup lang="ts">
+import { spring } from 'motion';
 import type { PropType } from 'vue';
 
 interface Item {
@@ -23,11 +24,3 @@ const props = defineProps({
   }
 });
 </script>
-
-<style scoped>
-.home-block {
-  border: 1px solid #ccc;
-  background: #fff;
-  padding: 10px;
-}
-</style>

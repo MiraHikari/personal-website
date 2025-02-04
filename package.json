@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@nuxt/icon": "1.10.3",
     "@pinia/nuxt": "^0.9.0",
     "@tailwindcss/vite": "^4.0.3",
     "@vueuse/core": "^12.5.0",
@@ -18,17 +19,21 @@
     "ejs": "^3.1.10",
     "gsap": "^3.12.7",
     "html2canvas": "^1.4.1",
+    "motion": "^12.0.11",
     "nuxt": "^3.15.4",
     "pinia": "^2.3.1",
     "pinia-plugin-persistedstate": "^4.2.0",
+    "popmotion": "^11.0.5",
     "rbush": "^4.0.1",
     "tailwindcss": "^4.0.3",
     "vue": "latest",
     "vue-router": "latest"
   },
   "devDependencies": {
+    "@iconify-json/lucide": "^1.2.25",
     "@types/ejs": "^3.1.5",
-    "@types/rbush": "^4.0.0"
+    "@types/rbush": "^4.0.0",
+    "daisyui": "5.0.0-beta.6"
   },
   "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0"
 }
