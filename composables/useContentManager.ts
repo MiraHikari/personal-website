@@ -4,7 +4,6 @@ import { gsap } from 'gsap';
 import type { Ref } from 'vue';
 
 interface ElementState {
-  element: HTMLElement;
   x: number;
   y: number;
   isVisible: boolean;
@@ -17,11 +16,9 @@ export function useContentManager(
   transformManager: {
     registerElement: (element: HTMLElement, x: number, y: number) => void;
     unregisterElement: (element: HTMLElement) => void;
-    setElementVisibility: (element: HTMLElement, isVisible: boolean) => void;
   }
 ) {
   const elements = ref<Map<HTMLElement, ElementState>>(new Map());
-  const visibleElements = ref<Set<HTMLElement>>(new Set());
   const isArranged = ref(false);
   const observer = ref<IntersectionObserver | null>(null);
 
@@ -40,15 +37,6 @@ export function useContentManager(
               state.isVisible = isVisible;
               state.intersectionRatio = entry.intersectionRatio;
             }
-
-            if (isVisible) {
-              visibleElements.value.add(entry.target);
-            } else {
-              visibleElements.value.delete(entry.target);
-            }
-
-            // Update visibility in transform manager
-            transformManager.setElementVisibility(entry.target, isVisible);
 
             entry.target.style.opacity = isVisible ? '1' : '0';
           }
@@ -78,13 +66,12 @@ export function useContentManager(
     );
 
     // Clear existing elements and observers
-    elements.value.forEach((state) => {
-      gsap.killTweensOf(state.element);
-      observer.value?.unobserve(state.element);
-      transformManager.unregisterElement(state.element);
+    elements.value.forEach((state, element) => {
+      gsap.killTweensOf(element);
+      observer.value?.unobserve(element);
+      transformManager.unregisterElement(element);
     });
     elements.value.clear();
-    visibleElements.value.clear();
 
     // Set initial state for all elements
     children.forEach((child) => {
@@ -95,7 +82,6 @@ export function useContentManager(
 
       // Track element state
       elements.value.set(child, {
-        element: child,
         x,
         y,
         isVisible: false,
@@ -124,18 +110,17 @@ export function useContentManager(
   // Cleanup
   onUnmounted(() => {
     if (observer.value) {
-      elements.value.forEach((state) => {
-        observer.value?.unobserve(state.element);
+      elements.value.forEach((_, element) => {
+        observer.value?.unobserve(element);
       });
       observer.value.disconnect();
       observer.value = null;
     }
     stopResizeObserver();
-    elements.value.forEach(state => {
-      gsap.killTweensOf(state.element);
+    elements.value.forEach((_, element) => {
+      gsap.killTweensOf(element);
     });
     elements.value.clear();
-    visibleElements.value.clear();
   });
 
   return {

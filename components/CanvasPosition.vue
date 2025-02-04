@@ -22,7 +22,3 @@ const resolvedX = computed(() => (typeof props.x === 'number' ? props.x : parseF
 const resolvedY = computed(() => (typeof props.y === 'number' ? props.y : parseFloat(props.y as string)));
 
 </script>
-
-<style scoped>
-/* 可在这里针对 Position 组件做一些全局调试样式 */
-</style>

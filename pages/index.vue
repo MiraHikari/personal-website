@@ -40,11 +40,6 @@
         { id: 4, text: '首页项目 4' }
       ]" />
     </Position>
-    <template #empty>
-      <div>
-        🤔你似乎来到了什么也没有的荒原，你可以无视本提示继续探索，或返回原点
-      </div>
-    </template>
   </InfiniteScrollView>
 </template>
 

@@ -1,30 +1,34 @@
 <template>
-  <div ref="scrollContainer" :class="{ 'w-screen h-screen overflow-hidden relative': true, 'cursor-grab select-none': isDragging }" @touchstart.prevent="handleTouchStart"
-    @touchmove.prevent="handleTouchMove" @touchend="handleTouchEnd" @mousedown="handleMouseDown"
-    @mousemove="handleMouseMove" @mouseup="handleMouseUp" @wheel.prevent="handleWheel">
+  <div ref="scrollContainer"
+    :class="{ 'w-screen h-screen overflow-hidden relative': true, 'cursor-grab select-none': isDragging }"
+    @touchstart.prevent="handleTouchStart" @touchmove.prevent="handleTouchMove" @touchend="handleTouchEnd"
+    @mousedown="handleMouseDown" @mousemove="handleMouseMove" @mouseup="handleMouseUp" @wheel.prevent="handleWheel">
     <!-- 滚动画布 -->
-    <div ref="contentContainer"
-      class="absolute top-0 left-0 w-full h-full">
+    <div ref="contentContainer" class="absolute top-0 left-0 w-full h-full">
       <slot></slot>
     </div>
     <transition enter-active-class="transition-opacity duration-500 ease-in"
       leave-active-class="transition-opacity duration-500 ease-out" enter-from-class="opacity-0"
       leave-to-class="opacity-0">
-      <div v-if="!hasVisibleContent" key="empty"
+      <UContainer v-if="!hasVisibleContent" key="empty"
         class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none text-center z-10">
         <slot name="empty">
-          <div class="p-5 border border-dashed rounded-lg shadow-md">
-            这里空空如也……
+          <div>
+            🤔貌似闯进了了无人烟的荒原，你可以无视我继续深挖，或点这里<span
+              class="pointer-events-auto cursor-pointer text-primary/80 underline-offset-4 underline decoration-2 decoration-primary px-1 transition-opacity duration-300 hover:text-primary"
+              @click="handleNavigation('home')">返回原点</span>
           </div>
         </slot>
-      </div>
+      </UContainer>
     </transition>
   </div>
-  <BottomNav
-    :scrollX="scrollX"
-    :scrollY="scrollY"
-    @navigate="handleNavigation"
-  />
+  <BottomNav :scrollX="scrollX" :scrollY="scrollY" @navigate="handleNavigation" />
+
+  <!-- 小地图 -->
+  <ClientOnly v-if="!isMobile">
+    <MiniMap :scrollX="scrollX" :scrollY="scrollY" :contentEl="contentContainer" />
+  </ClientOnly>
+
   <!-- 操作提示 -->
   <ClientOnly>
     <div class="fixed top-2.5 right-2.5 bg-black/80 text-white px-2.5 py-1.5 rounded z-50 text-sm">
@@ -34,8 +38,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUpdated, nextTick, watch } from 'vue';
-import { useWindowSize, useBreakpoints, onKeyStroke } from '@vueuse/core';
 import BottomNav from '~/components/BottomNav.vue';
 import { useInfiniteStore } from '~/stores/infiniteStore';
 import { useTransformManager } from '~/composables/useTransformManager';
@@ -44,16 +46,7 @@ import { useInteractionManager } from '~/composables/useInteractionManager';
 
 // Store and State
 const infiniteStore = useInfiniteStore();
-const scrollX = ref(infiniteStore.scrollX);
-const scrollY = ref(infiniteStore.scrollY);
-
-// Watch for scroll changes and persist to store
-watch([scrollX, scrollY], ([newX, newY]) => {
-  infiniteStore.$patch({
-    scrollX: newX,
-    scrollY: newY
-  });
-}, { flush: 'sync' });
+const { scrollX, scrollY } = storeToRefs(infiniteStore);
 
 // Provide scroll position update function
 function updateScrollPosition(deltaX: number, deltaY: number) {
@@ -70,11 +63,10 @@ const isMobile = breakpoints.smaller('mobile')
 // DOM References and Measurements
 const scrollContainer = ref<HTMLElement | null>(null);
 const contentContainer = ref<HTMLElement | null>(null);
-const { width: viewportWidth, height: viewportHeight } = useWindowSize();
 
 // Initialize managers
-const transformManager = useTransformManager(scrollX, scrollY, updateScrollPosition);
-const contentManager = useContentManager(
+const transformManager = useTransformManager(updateScrollPosition);
+const { hasVisibleContent, arrangeContent } = useContentManager(
   contentContainer,
   scrollContainer,
   transformManager
@@ -95,20 +87,14 @@ const {
 } = useInteractionManager(
   scrollX,
   scrollY,
-  viewportWidth,
-  viewportHeight,
   isMobile,
   (deltaX: number, deltaY: number) =>
     transformManager.updateTransform({ deltaX, deltaY })
 );
 
-// Expose content manager properties
-const { hasVisibleContent } = contentManager;
-
 // Lifecycle hooks
 onMounted(() => {
-  // Only arrange content once after mount
-  nextTick(contentManager.arrangeContent);
+  nextTick(arrangeContent);
 });
 
 // Keyboard Controls

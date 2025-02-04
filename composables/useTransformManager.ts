@@ -1,6 +1,4 @@
-import { ref, onUnmounted } from 'vue';
 import { gsap } from 'gsap';
-import type { Ref } from 'vue';
 
 // Movement Interface
 export interface Movement {
@@ -11,12 +9,9 @@ export interface Movement {
 interface ElementState {
   x: number;
   y: number;
-  isVisible: boolean;
 }
 
 export function useTransformManager(
-  scrollX: Ref<number>,
-  scrollY: Ref<number>,
   updateScrollPosition: (deltaX: number, deltaY: number) => void
 ) {
   const elements = ref(new Map<HTMLElement, ElementState>());
@@ -36,8 +31,8 @@ export function useTransformManager(
     gsap.to(element, {
       x,
       y,
-      duration: 0.6,
-      ease: 'power2.out'
+      duration: 0.8,
+      ease: 'power3.out'
     });
   }
 
@@ -64,19 +59,13 @@ export function useTransformManager(
 
   return {
     registerElement: (element: HTMLElement, initialX: number, initialY: number) => {
-      elements.value.set(element, { x: initialX, y: initialY, isVisible: false });
+      elements.value.set(element, { x: initialX, y: initialY });
       gsap.set(element, { x: initialX, y: initialY });
     },
     unregisterElement: (element: HTMLElement) => {
       gsap.killTweensOf(element);
       elements.value.delete(element);
     },
-    updateTransform: handleMovement,
-    setElementVisibility: (element: HTMLElement, isVisible: boolean) => {
-      const state = elements.value.get(element);
-      if (state) {
-        state.isVisible = isVisible;
-      }
-    }
+    updateTransform: handleMovement
   };
 }

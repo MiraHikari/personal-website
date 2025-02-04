@@ -1,4 +1,3 @@
-import tailwindcss from "@tailwindcss/vite";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -7,13 +6,10 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     'pinia-plugin-persistedstate/nuxt',
     '@vueuse/nuxt',
-    '@nuxt/icon'
+    '@nuxt/icon',
+    '@nuxt/ui',
+    '@nuxtjs/tailwindcss'
   ],
   css: ['~/styles/global.css'],
-  vite: {
-    plugins: [
-      tailwindcss(),
-    ],
-  },
   devtools: { enabled: true }
 })
